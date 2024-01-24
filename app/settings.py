@@ -11,9 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import dj_database_url
+from pathlib import Path
+
 import os
 from datetime import timedelta
-from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,12 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # ^ GENERICS
     'rest_framework',
     'rest_framework_simplejwt',
+    # ^ DEPENDENCIES
     'users',
     'authen',
-    'contacts',
-    'django_filters',
+    'logs',
+    'transcripts',
+    # ^ APPLICATIONS
 ]
 
 MIDDLEWARE = [
@@ -56,8 +61,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # ^ GENERIC MIDDLEWARE
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    # ^ CORS MIDDLEWARE
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -149,11 +156,12 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
     'ALGORITHM': 'HS256',
+    'SIGNING_KEY': os.environ.get('JWT_SIGNING_KEY'),
 }
 
 AUTH_USER_MODEL = 'users.User'

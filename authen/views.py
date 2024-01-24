@@ -5,8 +5,6 @@ from rest_framework import response, status
 from .serializers import RegisterSerializer, LoginSerializer
 from users.models import User
 
-from django.contrib.auth.hashers import make_password
-
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -19,13 +17,13 @@ def register_view(request):
     try:
         serializer.save()
         return response.Response(
-            {'message': 'User registered successfully!'},
-            status=status.HTTP_201_CREATED
+            {'message': "User registered successfully!"},
+            status=status.HTTP_201_CREATED,
         )
     except:
         return response.Response(
-            {'message': serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -35,20 +33,19 @@ def login_view(request):
     serializer = LoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    user = None
-
     try:
         user = User.objects.get(username=serializer.data['username'])
+
+        if not user.check_password(serializer.data['password']):
+            return response.Response(
+                {'message': "Provided auth credentials are incorrect!"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
     except User.DoesNotExist:
         return response.Response(
-            {'message': 'User does not exist!'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    if user.check_password(serializer.data['password']) is False:
-        return response.Response(
-            {'message': 'Password is incorrect!'},
-            status=status.HTTP_400_BAD_REQUEST
+            {'message': "User not found!"},
+            status=status.HTTP_404_NOT_FOUND
         )
     
     refresh = RefreshToken.for_user(user=user)
@@ -58,6 +55,18 @@ def login_view(request):
     }
 
     return response.Response(
-        {'tokens': tokens},
-        status=status.HTTP_202_ACCEPTED
+        {
+            'tokens': tokens,
+            'nickname': user.nickname,
+        },
+        status=status.HTTP_202_ACCEPTED,
+    )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_token(request):
+    return response.Response(
+        {'msg': "Token is still valid, welcome back " + request.user.nickname + '!'},
+        status=status.HTTP_200_OK
     )
