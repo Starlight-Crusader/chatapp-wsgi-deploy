@@ -6,4 +6,4 @@ class Log(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     body = models.TextField()
     resolved = models.BooleanField(default=False)
-    origin_ip = models.CharField(null=True)
+    origin_ip = models.CharField(null=True, max_length=256)
