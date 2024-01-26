@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from .views import root_view
+import os
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path(f"admin/{os.environ.get('ADMIN_URL_SECRET')}", admin.site.urls),
     path('authen/', include('authen.urls')),
     path('users/', include('users.urls')),
     path('transcripts/', include("transcripts.urls")),
