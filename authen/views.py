@@ -15,6 +15,12 @@ def register_view(request):
     serializer.is_valid(raise_exception=True)
 
     try:
+        if len(serializer.validated_data['password']) < 8:
+            return response.Response(
+                {'message': "This password is too short!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         serializer.save()
         return response.Response(
             {'message': "User registered successfully!"},
